@@ -6,6 +6,78 @@ const MapUtils = require('../domain/mapUtils.js');
 let log = null; // Injected logger
 let prevDirection = '';
 
+// CHECK SNAKESPATH ID ALIVE
+// CHECK THEIR HEAD POSITION
+// KEEP AWAY FROM OTHER SNAKES
+// FIND CLOSEST PATH TO PIZZA AFTER WE REMOVED DANGER PATHS
+// CHECK PATHS WITH LOT OF SPACE
+
+// function hamiltonian(map) {
+//     map.getWidth();
+//     map.getHeight();
+//     SizeType size = map->getSize();
+//     Pos head = getHead(), tail = getTail();
+//     Point::ValueType tailIndex = map->getPoint(tail).getIdx();
+//     Point::ValueType headIndex = map->getPoint(head).getIdx();
+//     // Try to take shortcuts when the snake is not long enough
+//     if (bodies.size() < size * 3 / 4) {
+//         list<Direction> minPath;
+//         findMinPathToFood(minPath);
+//         if (!minPath.empty()) {
+//             Direction nextDirec = *minPath.begin();
+//             Pos nextPos = head.getAdj(nextDirec);
+//             Point::ValueType nextIndex = map->getPoint(nextPos).getIdx();
+//             Point::ValueType foodIndex = map->getPoint(map->getFood()).getIdx();
+//             headIndex = util::getDistance(tailIndex, headIndex, (Point::ValueType)size);
+//             nextIndex = util::getDistance(tailIndex, nextIndex, (Point::ValueType)size);
+//             foodIndex = util::getDistance(tailIndex, foodIndex, (Point::ValueType)size);
+//             if (nextIndex > headIndex && nextIndex <= foodIndex) {
+//                 direc = nextDirec;
+//                 return;
+//             }
+//         }
+// }
+// Move along the hamitonian cycle
+// headIndex = map->getPoint(head).getIdx();
+// vector<Pos> adjPositions = head.getAllAdj();
+// for (const Pos &adjPos : adjPositions) {
+//     const Point &adjPoint = map->getPoint(adjPos);
+//     Point::ValueType adjIndex = adjPoint.getIdx();
+//     if (adjIndex == (headIndex + 1) % size) {
+//         direc = head.getDirectionTo(adjPos);
+//     }
+// }
+
+
+
+function chooseDirection (from, to) {
+        Boolean up = false;
+        Boolean right = false;
+    if (from.x < to.x) {
+        right = true;
+    } else if (from.y < to.y) {
+        up = true;
+    }
+
+
+    if (to.x - from.x < to.y - from.y) {
+        if (right) {
+            direction = 'RIGHT';
+        } else {
+            direction = 'LEFT';
+        }
+    } else {
+        if (up) {
+            direction = 'UP';
+        } else {
+            direction = 'DOWN';
+        }
+    }
+}
+
+}
+
+
 
 // FIND POSSIBLE DIRECTIONS
 /**
@@ -19,11 +91,11 @@ function findNextDirection(myCoords, map) {
     let nextDirection;
     const directionsArray = ['UP', 'DOWN', 'LEFT', 'RIGHT'];
     const possibleDirections = [];
+    console.log(MapUtils.sortByClosestTo('food', myCoords));
+
 
     // Find possible directions
     directionsArray.forEach(function (dir) {
-        console.log(`DIR: ${dir}`);
-        console.log(`PREV: ${prevDirection}`);
         if (MapUtils.canSnakeMoveInDirection(dir, myCoords, map)) {
                 possibleDirections.push(dir);
                 console.log(dir);
@@ -62,6 +134,27 @@ function onMapUpdated(mapState, myUserId) {
 
     log('I am here:', myCoords);
     snakeBrainDump.myCoords = myCoords;
+
+
+    map.getSnakeInfos().map(snakeInfo =>
+        snakeInfo.getPositions().map((pos, index) => {
+            let content = 'snakebody';
+
+            if (index === 0) {
+                content = 'snakehead';
+            } else if (index === snakeInfo.getLength() - 1) {
+                content = 'snaketail';
+            }
+
+            tiles[pos] = {
+                content
+            };
+
+            console.log("Log content: ", content);
+
+            return content;
+        }));
+
 
     // 2. Do some nifty planning...
     // (Tip: see MapUtils for some off-the-shelf navigation aid.
