@@ -21,18 +21,14 @@ function findNextDirection(myCoords, map) {
     const possibleDirections = [];
 
     // Find possible directions
-    directionsArray.forEach(function (dir) {
-        console.log(`DIR: ${dir}`);
-        console.log(`PREV: ${prevDirection}`);
+    directionsArray.forEach((dir) => {
         if (MapUtils.canSnakeMoveInDirection(dir, myCoords, map)) {
-                possibleDirections.push(dir);
-                console.log(dir);
-                direction = dir;
-                prevDirection = dir;
-
+            possibleDirections.push(dir);
+            console.log(dir);
+            direction = dir;
+            prevDirection = dir;
         }
     });
-
 
 
     // //Find pizzas in direction
@@ -67,7 +63,6 @@ function onMapUpdated(mapState, myUserId) {
     // (Tip: see MapUtils for some off-the-shelf navigation aid.
 
     direction = findNextDirection(myCoords, map);
-    // console.log(`KÖR HIT: ${direction}`);
     const tiles = JSON.stringify(MapUtils.getOccupiedMapTiles(map));
     console.log(`MAPSHIT: ${tiles} \n`);
 
