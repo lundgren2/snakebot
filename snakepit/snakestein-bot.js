@@ -134,7 +134,7 @@ function findNextDirection(myCoords, map) {
     possibleDirections.forEach((possibleDir) => {
         const nextcoordinate = getNextCoordinate(possibleDir, myCoords);
 
-        if (nextcoordinate.x === 0 || nextcoordinate.y === 0 || nextcoordinate.x > map.getWidth()  || nextcoordinate.y > map.getHeight()) {
+        if (nextcoordinate.x === 0 || nextcoordinate.y === 0 || nextcoordinate.x > map.getWidth() - 10  || nextcoordinate.y > map.getHeight() - 10) {
             console.log("TAR BORT POSSIBLE DIR");
             possibleDirections.pop(possibleDir);
         } else {
@@ -158,8 +158,11 @@ function findNextDirection(myCoords, map) {
                                     } else {
                                         if (MapUtils.canSnakeMoveInDirection(dir, nextcoordinate, map)) {
                                             console.log('Klarade sig');
+                                            direction = possibleDir;
+
                                         } else {
                                             possibleDirections.pop(dir);
+                                            direction = possibleDir;
                                             console.log("POSS DIR: ", possibleDirections[0]);
                                         }
 
@@ -195,10 +198,10 @@ function findNextDirection(myCoords, map) {
 
 
     //
-    possibleDirections.forEach((dir) => {
-        console.log("NY DIR SATT!");
-        direction = dir;
-    });
+    // possibleDirections.forEach((dir) => {
+    //     console.log("NY DIR SATT!");
+    //     direction = dir;
+    // });
     return direction;
 }
 
