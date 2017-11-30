@@ -4,10 +4,14 @@
 const MapUtils = require('../domain/mapUtils.js');
 
 let log = null; // Injected logger
-let prevDirection = '';
+let prevDirection;
+const debug = false;
 
-// CHECK SNAKESPATH ID ALIVE
+// CHECK SNAKES PATH ID ALIVE
 // CHECK THEIR HEAD POSITION
+function hamiltonian(map) {
+    const snakesLeft = MapUtils.getSnakesCoordinates();
+}
 // KEEP AWAY FROM OTHER SNAKES
 // FIND CLOSEST PATH TO PIZZA AFTER WE REMOVED DANGER PATHS
 // CHECK PATHS WITH LOT OF SPACE
@@ -21,7 +25,7 @@ let prevDirection = '';
 //     Point::ValueType headIndex = map->getPoint(head).getIdx();
 //     // Try to take shortcuts when the snake is not long enough
 //     if (bodies.size() < size * 3 / 4) {
-//         list<Direction> minPath;
+//         list<Direction> minPath;git
 //         findMinPathToFood(minPath);
 //         if (!minPath.empty()) {
 //             Direction nextDirec = *minPath.begin();
@@ -49,35 +53,56 @@ let prevDirection = '';
 // }
 
 
+function chooseDirection(from, to) {
+    let up,
+            right = 0;
+    let direction = 'UP';
 
-function chooseDirection (from, to) {
-        Boolean up = false;
-        Boolean right = false;
     if (from.x < to.x) {
-        right = true;
+        right = 1;
     } else if (from.y < to.y) {
-        up = true;
+        up = 1;
     }
 
 
-    if (to.x - from.x < to.y - from.y) {
-        if (right) {
+    if (Math.abs(to.x - from.x) > Math.abs(to.y - from.y)) {
+        if (Boolean(right)) {
             direction = 'RIGHT';
         } else {
             direction = 'LEFT';
         }
     } else {
-        if (up) {
+        if (Boolean(up)) {
             direction = 'UP';
         } else {
             direction = 'DOWN';
-        }
     }
 }
 
+    return direction;
 }
 
+function getNextCoordinate(direction, coordinate) {
+    const gap = 1;
+    switch (direction) {
+    case 'UP':
+        coordinate.y += gap;
+        break;
+    case 'DOWN':
+        coordinate.y -= gap;
+        break;
+    case 'RIGHT':
+        coordinate.x += gap;
+        break;
+    case 'LEFT':
+        coordinate.x -= gap;
+        break;
+    default:
+        break;
+    }
 
+    return coordinate;
+}
 
 // FIND POSSIBLE DIRECTIONS
 /**
@@ -91,40 +116,111 @@ function findNextDirection(myCoords, map) {
     let nextDirection;
     const directionsArray = ['UP', 'DOWN', 'LEFT', 'RIGHT'];
     const possibleDirections = [];
-    console.log(MapUtils.sortByClosestTo('food', myCoords));
+    const snakeInfos = map.getSnakeInfos();
+
+    // console.log(snakeInfos);
+    // console.log(MapUtils.sortByClosestTo('food', myCoords));
 
 
     // Find possible directions
     directionsArray.forEach((dir) => {
         if (MapUtils.canSnakeMoveInDirection(dir, myCoords, map)) {
             possibleDirections.push(dir);
-            console.log(dir);
             direction = dir;
             prevDirection = dir;
         }
     });
 
+    possibleDirections.forEach((possibleDir) => {
+        const nextcoordinate = getNextCoordinate(possibleDir, myCoords);
 
-    // //Find pizzas in direction
-    // for (i = 0; i < possibleDirections.length; i++) {
-    //     if (!MapUtils.getTileInDirection(possibleDirections[i], myCoords, map) === 'food') {
-    //         direction = possibleDirections[i];
+        if (nextcoordinate.x === 0 || nextcoordinate.y === 0 || nextcoordinate.x > map.getWidth()  || nextcoordinate.y > map.getHeight()) {
+            console.log("TAR BORT POSSIBLE DIR");
+            possibleDirections.pop(possibleDir);
+        } else {
+            if (!MapUtils.isCoordinateOutOfBounds(nextcoordinate, map)) {
+                directionsArray.forEach((dir) => {
+                    if (dir === direction) {
+                        console.log("SAME DIR!");
+                        return;
+                    } else {
+                        if (MapUtils.canSnakeMoveInDirection(dir, nextcoordinate, map)) {
+                            console.log('Klarade sig');
+
+
+                            const nextcoordinate2 = getNextCoordinate(possibleDir, nextcoordinate);
+
+                            if (!MapUtils.isCoordinateOutOfBounds(nextcoordinate2, map)) {
+                                directionsArray.forEach((dir2) => {
+                                    if (dir === dir) {
+                                        console.log("SAME DIR!");
+                                        return;
+                                    } else {
+                                        if (MapUtils.canSnakeMoveInDirection(dir, nextcoordinate, map)) {
+                                            console.log('Klarade sig');
+                                        } else {
+                                            possibleDirections.pop(dir);
+                                            console.log("POSS DIR: ", possibleDirections[0]);
+                                        }
+
+                                    }
+                                });
+                            }
+
+                        } else {
+                            possibleDirections.pop(dir);
+                            console.log("POSS DIR: ", possibleDirections[0]);
+                        }
+                    }
+
+                });
+
+            }
+        }
+    });
     //
-    //         console.log('food HITTAD!!');
-    //         break;
     //
-    //     }
-    //     console.log(MapUtils.getTileInDirection(possibleDirections[i], myCoords, map));
-    // No pizzas in possible directions
+    // let newDir;
+    // const allFood = MapUtils.listCoordinatesContainingFood(myCoords, map);
+    // console.log("ALL FOOD: ", allFood);
+    // if (allFood.length > 0) {
+    //     newDir = chooseDirection(myCoords, allFood[0]);
+    //     console.log("NEW DIRRRR: ", newDir);
+    // }
+    //
+    // if (possibleDirections.includes(newDir)) {
+    //     direction = newDir;
+    //     console.log("INNEHÅLLER!");
     // }
 
 
+    //
+    possibleDirections.forEach((dir) => {
+        console.log("NY DIR SATT!");
+        direction = dir;
+    });
     return direction;
 }
+
+
+// //Find pizzas in direction
+// for (i = 0; i < possibleDirections.length; i++) {
+//     if (!MapUtils.getTileInDirection(possibleDirections[i], myCoords, map) === 'food') {
+//         direction = possibleDirections[i];
+//
+//         console.log('food HITTAD!!');
+//         break;
+//
+//     }
+//     console.log(MapUtils.getTileInDirection(possibleDirections[i], myCoords, map));
+// No pizzas in possible directions
+// }
+
 
 function onMapUpdated(mapState, myUserId) {
     const map = mapState.getMap();
     let direction = 'DOWN'; // <'UP' | 'DOWN' | 'LEFT' | 'RIGHT'>
+    let nextdirection;
     const snakeBrainDump = {}; // Optional debug information about the snakes current state of mind.
 
     // 1. Where's what etc.
@@ -134,32 +230,31 @@ function onMapUpdated(mapState, myUserId) {
     snakeBrainDump.myCoords = myCoords;
 
 
-    map.getSnakeInfos().map(snakeInfo =>
-        snakeInfo.getPositions().map((pos, index) => {
-            let content = 'snakebody';
-
-            if (index === 0) {
-                content = 'snakehead';
-            } else if (index === snakeInfo.getLength() - 1) {
-                content = 'snaketail';
-            }
-
-            tiles[pos] = {
-                content
-            };
-
-            console.log("Log content: ", content);
-
-            return content;
-        }));
+    // map.getSnakeInfos().map(snakeInfo =>
+    //     snakeInfo.getPositions().map((pos, index) => {
+    //         let content = 'snakebody';
+    //
+    //         if (index === 0) {
+    //             content = 'snakehead';
+    //         } else if (index === snakeInfo.getLength() - 1) {
+    //             content = 'snaketail';
+    //         }
+    //
+    //
+    //         console.log("Log content: ", content);
+    //
+    //         return content;
+    //     }));
 
 
     // 2. Do some nifty planning...
     // (Tip: see MapUtils for some off-the-shelf navigation aid.
 
     direction = findNextDirection(myCoords, map);
+
     const tiles = JSON.stringify(MapUtils.getOccupiedMapTiles(map));
-    console.log(`MAPSHIT: ${tiles} \n`);
+
+    debug && console.log(`MAP: ${tiles} \n`);
 
     // 3. Then shake that snake!
     return {
