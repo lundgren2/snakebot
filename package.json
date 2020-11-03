@@ -21,7 +21,7 @@
         "jsdox": "^0.4.10",
         "json-socket": "0.2.0",
         "locate-path": "^2.0.0",
-        "minimist": "^1.2.0",
+        "minimist": "^1.2.3",
         "mkdirp": "^0.5.1",
         "mocha": "^4.0.1",
         "nan": "^2.2.0",
